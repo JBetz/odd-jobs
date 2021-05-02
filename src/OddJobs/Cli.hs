@@ -137,7 +137,7 @@ defaultWebUi :: StartArgs
              -> Config
              -> IO ()
 defaultWebUi StartArgs{..} cfg@Config{..} = do
-  env <- UI.mkEnv cfg ("/" <>)
+  env <- UI.mkEnv cfg (startPathPrefix <>)
   case startWebUiAuth of
     Nothing -> pure ()
     Just AuthNone ->
@@ -243,6 +243,8 @@ data StartArgs = StartArgs
   , startDaemonize :: !Bool
     -- | PID file for the background dameon. Ref: 'pidFileParser'
   , startPidFile :: !FilePath
+    -- | Prefix to add to all internal URLs.
+  , startPathPrefix :: !Text
   } deriving (Eq, Show)
 
 startParser :: Parser Command
@@ -258,6 +260,9 @@ startParser = fmap Start $ StartArgs
                help "Fork the job-runner as a background daemon. If omitted, the job-runner remains in the foreground."
              )
   <*> pidFileParser
+  <*> strOption ( long "web-ui-path-prefix" <>
+                  metavar "PATH_PREFIX" <>
+                  help "Path prefix for internal URLs")
 
 data WebUiAuth
   = AuthNone
